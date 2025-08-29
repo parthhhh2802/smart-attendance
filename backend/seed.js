@@ -2,12 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-// Import models
 const User = require('./models/User');
 const Company = require('./models/Company');
 const Session = require('./models/Session');
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/smart-scan-track', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -15,7 +13,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/smart-sca
 .then(() => console.log('Connected to MongoDB for seeding'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// Demo data
 const demoData = {
   companies: [
     {
@@ -56,7 +53,6 @@ const demoData = {
     }
   ],
   users: [
-    // Admin user
     {
       name: 'Admin User',
       email: 'admin@example.com',
@@ -65,7 +61,6 @@ const demoData = {
       phone: '+1-555-0000',
       department: 'Administration'
     },
-    // Faculty users
     {
       name: 'Dr. Sarah Johnson',
       email: 'sarah.johnson@techcorp.com',
@@ -84,7 +79,6 @@ const demoData = {
       department: 'Engineering',
       companyName: 'Innovate Industries'
     },
-    // Company admin users
     {
       name: 'CEO TechCorp',
       email: 'ceo@techcorp.com',
@@ -101,7 +95,6 @@ const demoData = {
       phone: '+1-555-0004',
       companyName: 'Innovate Industries'
     },
-    // Student users
     {
       name: 'Alice Smith',
       email: 'alice.smith@student.com',
@@ -178,99 +171,73 @@ const demoData = {
 async function seedDatabase() {
   try {
     console.log('Starting database seeding...');
-
-    // Clear existing data
     await User.deleteMany({});
     await Company.deleteMany({});
     await Session.deleteMany({});
-
     console.log('Cleared existing data');
 
-    // Create companies
-    const companies = [];
+    // Step 1: Create companies (without admin)
+    const companies = {};
     for (const companyData of demoData.companies) {
-      const company = new Company(companyData);
-      await company.save();
-      companies.push(company);
+      const company = await Company.create({ ...companyData });
+      companies[company.name] = company;
       console.log(`Created company: ${company.name}`);
     }
 
-    // Create users
-    const users = [];
+    // Step 2: Create users and assign company
+    const users = {};
     for (const userData of demoData.users) {
       const { companyName, ...userFields } = userData;
-      
-      // Find company if specified
-      let companyId = null;
-      if (companyName) {
-        const company = companies.find(c => c.name === companyName);
-        if (company) {
-          companyId = company._id;
-        }
-      }
+      const company = companyName ? companies[companyName] : null;
+      const hashedPassword = await bcrypt.hash(userFields.password, 10);
 
-      const user = new User({
+      const user = await User.create({
         ...userFields,
-        company: companyId
+        password: hashedPassword,
+        company: company ? company._id : null
       });
-
-      await user.save();
-      users.push(user);
+      users[user.email] = user;
       console.log(`Created user: ${user.name} (${user.role})`);
 
-      // Update company admin if this is a company admin user
-      if (user.role === 'company' && companyId) {
-        await Company.findByIdAndUpdate(companyId, { admin: user._id });
+      // If this is a company admin, update company's admin
+      if (user.role === 'company' && company) {
+        company.admin = user._id;
+        await company.save();
+        console.log(`Set ${user.name} as admin for ${company.name}`);
       }
     }
 
-    // Create sessions
+    // Step 3: Create sessions
     for (const sessionData of demoData.sessions) {
       const { companyName, ...sessionFields } = sessionData;
-      
-      // Find company and faculty
-      const company = companies.find(c => c.name === companyName);
-      const faculty = users.find(u => u.role === 'faculty' && u.company?.toString() === company?._id.toString());
+      const company = companies[companyName];
+      const faculty = Object.values(users).find(u => u.role === 'faculty' && u.company?.toString() === company._id.toString());
 
-      if (company && faculty) {
-        const session = new Session({
-          ...sessionFields,
-          faculty: faculty._id,
-          company: company._id
-        });
+      if (!company || !faculty) continue;
 
-        // Generate QR codes based on session type
-        if (session.type === 'internship') {
-          session.generateDailyQRCodes();
-        } else {
-          session.generateIndustrialVisitQR();
-        }
+      const session = new Session({
+        ...sessionFields,
+        faculty: faculty._id,
+        company: company._id
+      });
 
-        await session.save();
-        console.log(`Created session: ${session.title}`);
-
-        // Register students for sessions
-        const students = users.filter(u => u.role === 'student' && u.company?.toString() === company._id.toString());
-        for (const student of students) {
-          session.students.push({
-            student: student._id,
-            registeredAt: new Date()
-          });
-        }
-        await session.save();
-        console.log(`Registered ${students.length} students for session: ${session.title}`);
+      if (session.type === 'internship') {
+        session.generateDailyQRCodes();
+      } else {
+        session.generateIndustrialVisitQR();
       }
+
+      await session.save();
+      console.log(`Created session: ${session.title}`);
+
+      // Register students
+      const students = Object.values(users).filter(u => u.role === 'student' && u.company?.toString() === company._id.toString());
+      session.students = students.map(s => ({ student: s._id, registeredAt: new Date() }));
+      await session.save();
+      console.log(`Registered ${students.length} students for ${session.title}`);
     }
 
-    console.log('\nDatabase seeding completed successfully!');
-    console.log('\nDemo Account Details:');
-    console.log('=====================');
-    console.log('Admin: admin@example.com / admin123');
-    console.log('Faculty: sarah.johnson@techcorp.com / faculty123');
-    console.log('Company: ceo@techcorp.com / company123');
-    console.log('Student: alice.smith@student.com / student123');
-    console.log('\nAll passwords are: role123 (e.g., admin123, faculty123, etc.)');
-
+    console.log('\n✅ Database seeding completed successfully!');
   } catch (error) {
     console.error('Seeding error:', error);
   } finally {
@@ -279,5 +246,4 @@ async function seedDatabase() {
   }
 }
 
-// Run seeding
 seedDatabase();

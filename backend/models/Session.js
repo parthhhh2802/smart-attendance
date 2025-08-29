@@ -24,6 +24,9 @@ const sessionSchema = new mongoose.Schema({
     required: true
   },
   location: {
+    name: {
+      type: String,
+    },
     address: {
       type: String,
       required: true
