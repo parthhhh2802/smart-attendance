@@ -152,7 +152,7 @@ const Sessions = () => {
           {filteredSessions.length === 0 ? (
             <div className="col-12">
               <div className="glass-card text-center py-5">
-                <FiCalendar size={48} className="text-muted mb-3" />
+                <FiCalendar size={48} className="text-mute mb-3" />
                 <h5>No Sessions Found</h5>
                 <p className="text-muted">
                   {searchTerm ? 'Try adjusting your search criteria' : 'No sessions available at the moment'}

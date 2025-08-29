@@ -1,35 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { FiUser, FiMail, FiPhone, FiBriefcase, FiUserCheck } from 'react-icons/fi';
-import authService from '../api/authService';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    mobile: '',
+    password: '',
+    confirmPassword: '',
     role: 'student',
-    designation: ''
+    studentId: '',
+    phone: '',
+    department: '',
+    companyName: ''
   });
   const [loading, setLoading] = useState(false);
-  
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
+  const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    // Pre-fill email/mobile if coming from login
-    if (location.state?.emailOrMobile) {
-      const value = location.state.emailOrMobile;
-      if (value.includes('@')) {
-        setFormData(prev => ({ ...prev, email: value }));
-      } else {
-        setFormData(prev => ({ ...prev, mobile: value }));
-      }
-    }
-  }, [location.state]);
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,165 +26,296 @@ const Signup = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (formData.role === 'student' && !formData.studentId.trim()) {
+      newErrors.studentId = 'Student ID is required';
+    }
+
+    if (formData.role === 'faculty' && !formData.companyName.trim()) {
+      newErrors.companyName = 'Company name is required';
+    }
+
+    if (formData.role === 'company' && !formData.companyName.trim()) {
+      newErrors.companyName = 'Company name is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
-    if (!formData.name || !formData.email || !formData.mobile || !formData.designation) {
-      toast.error('Please fill all required fields');
+    if (!validateForm()) {
       return;
     }
 
     setLoading(true);
+    
     try {
-      const response = await authService.signup(formData);
+      const userData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        phone: formData.phone,
+        department: formData.department
+      };
+
+      // Add role-specific fields
+      if (formData.role === 'student') {
+        userData.studentId = formData.studentId;
+      }
+
+      if (formData.role === 'faculty' || formData.role === 'company') {
+        userData.companyName = formData.companyName;
+      }
+
+      const result = await register(userData);
       
-      if (response.success) {
-        login(response.user);
-        toast.success('Account created successfully!');
+      if (result.success) {
         navigate('/dashboard');
       }
     } catch (error) {
-      toast.error(error.message || 'Signup failed');
+      console.error('Registration error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center p-4">
-      <div className="glass-card fade-in" style={{ maxWidth: '500px', width: '100%' }}>
-        <div className="text-center mb-4">
-          <h2 className="mb-2">Create Account 🚀</h2>
-          <p className="text-muted">Fill in your details to get started</p>
-        </div>
+    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-md-8 col-lg-6">
+            <div className="card shadow">
+              <div className="card-body p-5">
+                <div className="text-center mb-4">
+                  <h2 className="fw-bold text-primary">Smart Scan Track</h2>
+                  <p className="text-muted">Create your account</p>
+                </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="row">
-            <div className="col-12 mb-3">
-              <div className="form-floating">
-                <input
-                  type="text"
-                  className="form-control"
-                  id="name"
-                  name="name"
-                  placeholder="Full Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                />
-                <label htmlFor="name">
-                  <FiUser className="me-2" />Full Name
-                </label>
-              </div>
-            </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="name" className="form-label">Full Name</label>
+                      <input
+                        type="text"
+                        className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Enter your full name"
+                        disabled={loading}
+                      />
+                      {errors.name && (
+                        <div className="invalid-feedback">{errors.name}</div>
+                      )}
+                    </div>
 
-            <div className="col-md-6 mb-3">
-              <div className="form-floating">
-                <input
-                  type="email"
-                  className="form-control"
-                  id="email"
-                  name="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                />
-                <label htmlFor="email">
-                  <FiMail className="me-2" />Email
-                </label>
-              </div>
-            </div>
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="email" className="form-label">Email</label>
+                      <input
+                        type="email"
+                        className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Enter your email"
+                        disabled={loading}
+                      />
+                      {errors.email && (
+                        <div className="invalid-feedback">{errors.email}</div>
+                      )}
+                    </div>
+                  </div>
 
-            <div className="col-md-6 mb-3">
-              <div className="form-floating">
-                <input
-                  type="tel"
-                  className="form-control"
-                  id="mobile"
-                  name="mobile"
-                  placeholder="Mobile"
-                  value={formData.mobile}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                />
-                <label htmlFor="mobile">
-                  <FiPhone className="me-2" />Mobile
-                </label>
-              </div>
-            </div>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="password" className="form-label">Password</label>
+                      <input
+                        type="password"
+                        className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Enter password"
+                        disabled={loading}
+                      />
+                      {errors.password && (
+                        <div className="invalid-feedback">{errors.password}</div>
+                      )}
+                    </div>
 
-            <div className="col-md-6 mb-3">
-              <div className="form-floating">
-                <select
-                  className="form-select"
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  disabled={loading}
-                >
-                  <option value="student">Student</option>
-                  <option value="faculty">Faculty</option>
-                  <option value="admin">Admin</option>
-                  <option value="company">Company Representative</option>
-                </select>
-                <label htmlFor="role">
-                  <FiUserCheck className="me-2" />Role
-                </label>
-              </div>
-            </div>
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+                      <input
+                        type="password"
+                        className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        placeholder="Confirm password"
+                        disabled={loading}
+                      />
+                      {errors.confirmPassword && (
+                        <div className="invalid-feedback">{errors.confirmPassword}</div>
+                      )}
+                    </div>
+                  </div>
 
-            <div className="col-md-6 mb-3">
-              <div className="form-floating">
-                <input
-                  type="text"
-                  className="form-control"
-                  id="designation"
-                  name="designation"
-                  placeholder="Designation"
-                  value={formData.designation}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                />
-                <label htmlFor="designation">
-                  <FiBriefcase className="me-2" />Designation
-                </label>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="role" className="form-label">Role</label>
+                      <select
+                        className="form-select"
+                        id="role"
+                        name="role"
+                        value={formData.role}
+                        onChange={handleChange}
+                        disabled={loading}
+                      >
+                        <option value="student">Student</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="company">Company</option>
+                      </select>
+                    </div>
+
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="phone" className="form-label">Phone</label>
+                      <input
+                        type="tel"
+                        className="form-control"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="Enter phone number"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  {formData.role === 'student' && (
+                    <div className="mb-3">
+                      <label htmlFor="studentId" className="form-label">Student ID</label>
+                      <input
+                        type="text"
+                        className={`form-control ${errors.studentId ? 'is-invalid' : ''}`}
+                        id="studentId"
+                        name="studentId"
+                        value={formData.studentId}
+                        onChange={handleChange}
+                        placeholder="Enter student ID"
+                        disabled={loading}
+                      />
+                      {errors.studentId && (
+                        <div className="invalid-feedback">{errors.studentId}</div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="department" className="form-label">Department</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="department"
+                        name="department"
+                        value={formData.department}
+                        onChange={handleChange}
+                        placeholder="Enter department"
+                        disabled={loading}
+                      />
+                    </div>
+
+                    {(formData.role === 'faculty' || formData.role === 'company') && (
+                      <div className="col-md-6 mb-3">
+                        <label htmlFor="companyName" className="form-label">Company Name</label>
+                        <input
+                          type="text"
+                          className={`form-control ${errors.companyName ? 'is-invalid' : ''}`}
+                          id="companyName"
+                          name="companyName"
+                          value={formData.companyName}
+                          onChange={handleChange}
+                          placeholder="Enter company name"
+                          disabled={loading}
+                        />
+                        {errors.companyName && (
+                          <div className="invalid-feedback">{errors.companyName}</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="d-grid mb-3">
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-lg"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          Creating account...
+                        </>
+                      ) : (
+                        'Create Account'
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="text-center">
+                    <p className="mb-0">
+                      Already have an account?{' '}
+                      <Link to="/login" className="text-decoration-none">
+                        Sign in here
+                      </Link>
+                    </p>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
-
-          <button 
-            type="submit" 
-            className="btn btn-gradient w-100 mb-3"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" />
-                Creating Account...
-              </>
-            ) : (
-              'Create Account'
-            )}
-          </button>
-
-          <button 
-            type="button" 
-            className="btn btn-outline-gradient w-100"
-            onClick={() => navigate('/login')}
-            disabled={loading}
-          >
-            Back to Login
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );

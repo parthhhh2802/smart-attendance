@@ -1,7 +1,15 @@
-import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { FiHome, FiCalendar, FiFileText, FiUser, FiLogOut, FiPlus } from 'react-icons/fi';
+import React from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {
+  FiHome,
+  FiCalendar,
+  FiFileText,
+  FiUser,
+  FiLogOut,
+  FiPlus,
+} from "react-icons/fi";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -10,24 +18,24 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const isActive = (path) => {
-    return location.pathname === path ? 'active' : '';
+    return location.pathname === path ? "active" : "";
   };
 
   return (
-    <nav className="navbar navbar-expand-lg custom-navbar sticky-top">
+    <nav className="navbar  navbar-expand-lg custom-navbar sticky-top">
       <div className="container">
         <Link className="navbar-brand" to="/dashboard">
-          📋 SmartAttend
+          SmartAttend
         </Link>
 
-        <button 
-          className="navbar-toggler" 
-          type="button" 
-          data-bs-toggle="collapse" 
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
         >
           <span className="navbar-toggler-icon"></span>
@@ -36,55 +44,66 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <Link className={`nav-link ${isActive('/dashboard')}`} to="/dashboard">
+              <Link
+                className={`nav-link ${isActive("/dashboard")}`}
+                to="/dashboard"
+              >
                 <FiHome className="me-1" /> Dashboard
               </Link>
             </li>
             <li className="nav-item">
-              <Link className={`nav-link ${isActive('/sessions')}`} to="/sessions">
+              <Link
+                className={`nav-link ${isActive("/sessions")}`}
+                to="/sessions"
+              >
                 <FiCalendar className="me-1" /> Sessions
               </Link>
             </li>
-            {user?.role === 'admin' && (
+            {user?.role === "admin" && (
               <li className="nav-item">
-                <Link className={`nav-link ${isActive('/sessions/create')}`} to="/sessions/create">
+                <Link
+                  className={`nav-link ${isActive("/sessions/create")}`}
+                  to="/sessions/create"
+                >
                   <FiPlus className="me-1" /> Create Session
                 </Link>
               </li>
             )}
             <li className="nav-item">
-              <Link className={`nav-link ${isActive('/reports')}`} to="/reports">
+              <Link
+                className={`nav-link ${isActive("/reports")}`}
+                to="/reports"
+              >
                 <FiFileText className="me-1" /> Reports
               </Link>
             </li>
           </ul>
 
-          <ul className="navbar-nav">
-            <li className="nav-item dropdown">
-              <a 
-                className="nav-link dropdown-toggle" 
-                href="#" 
-                id="navbarDropdown" 
-                role="button" 
-                data-bs-toggle="dropdown"
-              >
-                <FiUser className="me-1" /> {user?.name || 'User'}
-              </a>
-              <ul className="dropdown-menu dropdown-menu-end">
+          <div className="dropdown d-flex">
+                   
+              <FiUser className="m-2" />
+            <a
+              className="btn btn-primary dropdown-toggle"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded='true'
+            > {user?.name || "User"}</a>
+            
+              <ul className="dropdown-menu">
                 <li>
-                  <Link className="dropdown-item" to="/profile">
-                    <FiUser className="me-2" /> Profile
-                  </Link>
+                  <button className="dropdown-item" to="/profile">
+                    Profile
+                  </button>
                 </li>
-                <li><hr className="dropdown-divider" /></li>
+                
                 <li>
                   <button className="dropdown-item" onClick={handleLogout}>
-                    <FiLogOut className="me-2" /> Logout
+                    Logout
                   </button>
                 </li>
               </ul>
-            </li>
-          </ul>
+          </div>
         </div>
       </div>
     </nav>
