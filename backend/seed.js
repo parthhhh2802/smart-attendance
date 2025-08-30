@@ -10,8 +10,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/smart-sca
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('Connected to MongoDB for seeding'))
-.catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('Connected to MongoDB for seeding'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 const demoData = {
   companies: [
@@ -25,7 +25,10 @@ const demoData = {
         state: 'CA',
         country: 'USA',
         zipCode: '94025',
-        coordinates: { lat: 37.4419, lng: -122.1430 }
+        coordinates: {
+          type: 'Point',
+          coordinates: [-122.143, 37.4419] // lng, lat
+        }
       },
       contact: {
         email: 'info@techcorp.com',
@@ -43,7 +46,10 @@ const demoData = {
         state: 'TX',
         country: 'USA',
         zipCode: '73301',
-        coordinates: { lat: 30.2672, lng: -97.7431 }
+        coordinates: {
+          type: 'Point',
+          coordinates: [-97.7431, 30.2672] // lng, lat
+        }
       },
       contact: {
         email: 'contact@innovate.com',
@@ -145,7 +151,10 @@ const demoData = {
       endDate: new Date('2024-08-31'),
       location: {
         address: '123 Tech Street, Silicon Valley, CA 94025',
-        coordinates: { lat: 37.4419, lng: -122.1430 },
+        coordinates: {
+          type: 'Point',
+          coordinates: [-122.1430, 37.4419] // [longitude, latitude] for GeoJSON
+        },
         radius: 100
       },
       companyName: 'TechCorp Solutions',
@@ -159,13 +168,17 @@ const demoData = {
       endDate: new Date('2024-07-15'),
       location: {
         address: '456 Innovation Drive, Austin, TX 73301',
-        coordinates: { lat: 30.2672, lng: -97.7431 },
+        coordinates: {
+          type: 'Point',
+          coordinates: [-97.7431, 30.2672] // [longitude, latitude] for GeoJSON
+        },
         radius: 150
       },
       companyName: 'Innovate Industries',
       maxStudents: 20
     }
   ]
+
 };
 
 async function seedDatabase() {

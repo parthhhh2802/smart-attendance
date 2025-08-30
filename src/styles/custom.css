@@ -134,8 +134,10 @@ body {
 }
 
 /* Forms */
-.form-floating label {
+.form-label {
   color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
 }
 
 .form-control:focus {
@@ -144,10 +146,10 @@ body {
 }
 
 .form-control {
-  
   border-radius: 8px;
   border: 1px solid #e5e7eb;
   padding: 12px;
+  margin-bottom: 0.5rem;
 }
 
 /* QR Code Container */

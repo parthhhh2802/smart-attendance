@@ -137,55 +137,49 @@ const CreateSession = () => {
             
             <div className="row">
               <div className="col-md-12 mb-3">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="title"
-                    name="title"
-                    placeholder="Session Title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    required
-                  />
-                  <label htmlFor="title">
-                    <FiList className="me-2" />Session Title
-                  </label>
-                </div>
+                <label htmlFor="title" className="form-label">
+                  <FiList className="me-2" />Session Title
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="title"
+                  name="title"
+                  placeholder="Session Title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                />
               </div>
 
               <div className="col-md-6 mb-3">
-                <div className="form-floating">
-                  <input
-                    type="date"
-                    className="form-control"
-                    id="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleChange}
-                    required
-                  />
-                  <label htmlFor="date">
-                    <FiCalendar className="me-2" />Date
-                  </label>
-                </div>
+                <label htmlFor="date" className="form-label">
+                  <FiCalendar className="me-2" />Date
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  id="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                  required
+                />
               </div>
 
               <div className="col-md-6 mb-3">
-                <div className="form-floating">
-                  <input
-                    type="time"
-                    className="form-control"
-                    id="time"
-                    name="time"
-                    value={formData.time}
-                    onChange={handleChange}
-                    required
-                  />
-                  <label htmlFor="time">
-                    <FiClock className="me-2" />Time
-                  </label>
-                </div>
+                <label htmlFor="time" className="form-label">
+                  <FiClock className="me-2" />Time
+                </label>
+                <input
+                  type="time"
+                  className="form-control"
+                  id="time"
+                  name="time"
+                  value={formData.time}
+                  onChange={handleChange}
+                  required
+                />
               </div>
             </div>
           </div>
@@ -195,41 +189,37 @@ const CreateSession = () => {
             
             <div className="row">
               <div className="col-md-5 mb-3">
-                <div className="form-floating">
-                  <input
-                    type="number"
-                    className="form-control"
-                    id="lat"
-                    name="lat"
-                    placeholder="Latitude"
-                    value={formData.location.lat}
-                    onChange={handleChange}
-                    step="any"
-                    required
-                  />
-                  <label htmlFor="lat">
-                    <FiMapPin className="me-2" />Latitude
-                  </label>
-                </div>
+                <label htmlFor="lat" className="form-label">
+                  <FiMapPin className="me-2" />Latitude
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  id="lat"
+                  name="lat"
+                  placeholder="Latitude"
+                  value={formData.location.lat}
+                  onChange={handleChange}
+                  step="any"
+                  required
+                />
               </div>
 
               <div className="col-md-5 mb-3">
-                <div className="form-floating">
-                  <input
-                    type="number"
-                    className="form-control"
-                    id="lng"
-                    name="lng"
-                    placeholder="Longitude"
-                    value={formData.location.lng}
-                    onChange={handleChange}
-                    step="any"
-                    required
-                  />
-                  <label htmlFor="lng">
-                    <FiMapPin className="me-2" />Longitude
-                  </label>
-                </div>
+                <label htmlFor="lng" className="form-label">
+                  <FiMapPin className="me-2" />Longitude
+                </label>
+                <input
+                  type="number"
+                  className="form-control"
+                  id="lng"
+                  name="lng"
+                  placeholder="Longitude"
+                  value={formData.location.lng}
+                  onChange={handleChange}
+                  step="any"
+                  required
+                />
               </div>
 
               <div className="col-md-2 mb-3">

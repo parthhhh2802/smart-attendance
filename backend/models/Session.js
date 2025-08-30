@@ -32,13 +32,20 @@ const sessionSchema = new mongoose.Schema({
       required: true
     },
     coordinates: {
-      lat: {
-        type: Number,
-        required: true
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
       },
-      lng: {
-        type: Number,
-        required: true
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true,
+        validate: {
+          validator: function(v) {
+            return Array.isArray(v) && v.length === 2;
+          },
+          message: 'Coordinates must be an array of [longitude, latitude]'
+        }
       }
     },
     radius: {
@@ -84,11 +91,8 @@ const sessionSchema = new mongoose.Schema({
     isActive: {
       type: Boolean,
       default: true
-    },
-    expiresAt: {
-      type: Date,
-      required: true
     }
+    // Removed expiresAt field - QR codes are now permanent
   }],
   isActive: {
     type: Boolean,
@@ -172,7 +176,8 @@ sessionSchema.methods.generateDailyQRCodes = function() {
       this.qrCodes.push({
         date: new Date(currentDate),
         qrData: qrData,
-        expiresAt: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000) // Expire at end of day
+        isActive: true
+        // Removed expiresAt - QR codes are now permanent
       });
     }
     
@@ -194,7 +199,8 @@ sessionSchema.methods.generateIndustrialVisitQR = function() {
   this.qrCodes = [{
     date: this.startDate,
     qrData: qrData,
-    expiresAt: this.endDate
+    isActive: true
+    // Removed expiresAt - QR codes are now permanent
   }];
 };
 

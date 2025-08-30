@@ -21,6 +21,17 @@ const companySchema = new mongoose.Schema({
     country: String,
     zipCode: String,
     coordinates: {
+      type: {
+        type: String,      // must be "Point"
+        enum: ['Point'],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number],    // array: [longitude, latitude]
+        required: true
+      }
+    },
+coordinates: {
       lat: Number,
       lng: Number
     }
@@ -72,13 +83,13 @@ companySchema.index({ 'address.coordinates': '2dsphere' });
 companySchema.index({ admin: 1 });
 
 // Virtual for total active sessions
-companySchema.virtual('activeSessions').get(function() {
+companySchema.virtual('activeSessions').get(function () {
   // This will be populated when needed
   return [];
 });
 
 // Virtual for total registered students
-companySchema.virtual('totalStudents').get(function() {
+companySchema.virtual('totalStudents').get(function () {
   // This will be populated when needed
   return 0;
 });

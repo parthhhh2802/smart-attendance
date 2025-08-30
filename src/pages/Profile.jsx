@@ -102,100 +102,90 @@ const Profile = () => {
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-12 mb-3">
-                    <div className="form-floating">
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="name"
-                        name="name"
-                        placeholder="Full Name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        disabled={!editing || loading}
-                        required
-                      />
-                      <label htmlFor="name">
-                        <FiUser className="me-2" />Full Name
-                      </label>
-                    </div>
+                    <label htmlFor="name" className="form-label">
+                      <FiUser className="me-2" />Full Name
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="name"
+                      name="name"
+                      placeholder="Full Name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      disabled={!editing || loading}
+                      required
+                    />
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <div className="form-floating">
-                      <input
-                        type="email"
-                        className="form-control"
-                        id="email"
-                        name="email"
-                        placeholder="Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        disabled={!editing || loading}
-                        required
-                      />
-                      <label htmlFor="email">
-                        <FiMail className="me-2" />Email
-                      </label>
-                    </div>
+                    <label htmlFor="email" className="form-label">
+                      <FiMail className="me-2" />Email
+                    </label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      id="email"
+                      name="email"
+                      placeholder="Email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      disabled={!editing || loading}
+                      required
+                    />
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <div className="form-floating">
-                      <input
-                        type="tel"
-                        className="form-control"
-                        id="mobile"
-                        name="mobile"
-                        placeholder="Mobile"
-                        value={formData.mobile}
-                        onChange={handleChange}
-                        disabled={!editing || loading}
-                        required
-                      />
-                      <label htmlFor="mobile">
-                        <FiPhone className="me-2" />Mobile
-                      </label>
-                    </div>
+                    <label htmlFor="mobile" className="form-label">
+                      <FiPhone className="me-2" />Mobile
+                    </label>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      id="mobile"
+                      name="mobile"
+                      placeholder="Mobile"
+                      value={formData.mobile}
+                      onChange={handleChange}
+                      disabled={!editing || loading}
+                      required
+                    />
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <div className="form-floating">
-                      <select
-                        className="form-select"
-                        id="role"
-                        name="role"
-                        value={formData.role}
-                        onChange={handleChange}
-                        disabled={true} // Role cannot be changed
-                      >
-                        <option value="student">Student</option>
-                        <option value="faculty">Faculty</option>
-                        <option value="admin">Admin</option>
-                        <option value="company">Company Representative</option>
-                      </select>
-                      <label htmlFor="role">
-                        <FiUserCheck className="me-2" />Role
-                      </label>
-                    </div>
+                    <label htmlFor="role" className="form-label">
+                      <FiUserCheck className="me-2" />Role
+                    </label>
+                    <select
+                      className="form-select"
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleChange}
+                      disabled={true} // Role cannot be changed
+                    >
+                      <option value="student">Student</option>
+                      <option value="faculty">Faculty</option>
+                      <option value="admin">Admin</option>
+                      <option value="company">Company Representative</option>
+                    </select>
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <div className="form-floating">
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="designation"
-                        name="designation"
-                        placeholder="Designation"
-                        value={formData.designation}
-                        onChange={handleChange}
-                        disabled={!editing || loading}
-                        required
-                      />
-                      <label htmlFor="designation">
-                        <FiBriefcase className="me-2" />Designation
-                      </label>
-                    </div>
+                    <label htmlFor="designation" className="form-label">
+                      <FiBriefcase className="me-2" />Designation
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="designation"
+                      name="designation"
+                      placeholder="Designation"
+                      value={formData.designation}
+                      onChange={handleChange}
+                      disabled={!editing || loading}
+                      required
+                    />
                   </div>
                 </div>
 

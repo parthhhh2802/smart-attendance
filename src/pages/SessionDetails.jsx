@@ -17,9 +17,6 @@ const SessionDetails = () => {
 
   useEffect(() => {
     fetchSessionDetails();
-    // Auto-refresh QR code every 5 minutes
-    const interval = setInterval(refreshQRCode, 5 * 60 * 1000);
-    return () => clearInterval(interval);
   }, [id]);
 
   const fetchSessionDetails = async () => {
@@ -131,7 +128,7 @@ const SessionDetails = () => {
                   <img src={qrCode} alt="Session QR Code" className="img-fluid" />
                 </div>
                 <small className="text-muted d-block mt-2">
-                  Auto-refreshes every 5 minutes
+                  Permanent QR Code - No expiration
                 </small>
               </div>
 

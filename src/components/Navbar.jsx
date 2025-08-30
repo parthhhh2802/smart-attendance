@@ -59,7 +59,7 @@ const Navbar = () => {
                 <FiCalendar className="me-1" /> Sessions
               </Link>
             </li>
-            {user?.role === "admin" && (
+            {(user?.role === "admin" || user?.role === "faculty") && (
               <li className="nav-item">
                 <Link
                   className={`nav-link ${isActive("/sessions/create")}`}
@@ -92,7 +92,10 @@ const Navbar = () => {
             
               <ul className="dropdown-menu">
                 <li>
-                  <button className="dropdown-item" to="/profile">
+                  <button 
+                    className="dropdown-item" 
+                    onClick={() => navigate('/profile')}
+                  >
                     Profile
                   </button>
                 </li>
